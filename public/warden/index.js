@@ -1,37 +1,37 @@
 $(document).ready(() => {
 
   $('#viewApplications').click(() => {
-    let hid = localStorage.getItem("hid")
-    if (!hid) {
-      console.log("No HID in LS");
+    let hostelname = localStorage.getItem("Hostel_Name")
+    if (!hostelname) {
+      console.log("No Hostel_Name in LS");
       return;
     }
 
-    $.get(`/api/application/hostel/${hid}`).done((data) => {
+    $.get(`/api/application/hostel/${hostelname}`).done((data) => {
       if (data.success) {
-        $.get(`/api/hostel/details/${hid}`)
+        $.get(`/api/hostel/details/${hostelname}`)
           .done((hostelData) => {
             let rooms = hostelData.data;
             let roomsDict = {};
             rooms.forEach((room) => {
-              roomsDict[room.roomno] = room.vacant;
+              roomsDict[room.Room_ID] = room.vacant;
             })
 
             let applications = data.data;
             applications.sort((a, b) => {
               if (a.pwd && !b.pwd) {
                 return -1;
-              } else if (!a.pwd && b.pwd) {
+              } else (!a.pwd && b.pwd) {
                 return 1;
-              } else {
-                if (a.outsidedelhi && !b.outsidedelhi) {
-                  return -1;
-                } else if (!a.outsidedelhi && b.outsidedelhi) {
-                  return 1;
-                } else {
-                  return 0;
-                }
-              }
+              // } else {
+              //   if (a.outsidedelhi && !b.outsidedelhi) {
+              //     return -1;
+              //   } else if (!a.outsidedelhi && b.outsidedelhi) {
+              //     return 1;
+              //   } else {
+              //     return 0;
+              //   }
+              // }
             })
             console.log(applications)
 
@@ -46,11 +46,6 @@ $(document).ready(() => {
                       </div>
                       <div class="col">
                       <b>PWD</b>
-                      </div>
-
-                      <div class="col">
-                      <b>Outside Delhi</b>
-                      </div>
                       <div class="col">
                       <b>Room1</b>
                       </div>
@@ -97,10 +92,6 @@ $(document).ready(() => {
                       </div>
                       <div class="col">
                       ${application.pwd ? "Yes" : "No"}
-                      </div>
-
-                      <div class="col">
-                      ${application.outsidedelhi ? "Yes" : "No"}
                       </div>
                       <div class="col">
                       ${application.roompreference1}
@@ -185,7 +176,7 @@ $(document).ready(() => {
   })
 
   $('#listRoomStats').click(() => {
-    let hid = localStorage.getItem("hid")
+    let hid = localStorage.getItem("Hostel_Name")
     if (!hid) {
       console.log("No HID in LS");
       return;
@@ -206,8 +197,10 @@ $(document).ready(() => {
                   Add Room
                 </button>
                 <div id="roomInfo" style="display: none;">
-                  <input placeholder="Room Number" id="roomno">
-                  <input placeholder="Floor" id="floor">
+                  <input placeholder="Room ID" id="roomid">
+                  <input placeholder="Hostel Name" id="hostelname">
+                  <input placeholder="Number of Inmates" id="no_of_inmates">
+                  <input placeholder="Number of power outlets" id="no_of_outlets">
                   <button id="submitRoom" class="btn btn-success">Submit</button>
                 </div>
               </div>
@@ -216,10 +209,16 @@ $(document).ready(() => {
                     <li class="list-group-item">
                     <div class="row text-center">
                       <div class="col">
-                        <b>Room Number</b>
+                        <b>Room ID</b>
                       </div>
                       <div class="col">
-                      <b>Floor</b>
+                        <b>Hostel Name</b>
+                      </div>
+                      <div class="col">
+                        <b>Number of Inmates</b>
+                      </div>
+                      <div class="col">
+                        <b>Number of power outlets</b>
                       </div>
                       <div class="col">
                       <b>Vacant</b>
@@ -237,9 +236,10 @@ $(document).ready(() => {
           $('#roomInfo').css('display', 'block');
           $('#submitRoom').off().click(() => {
             $.post('/api/rooms/add', {
-              roomno: $('#roomno').val(),
-              floor: $('#floor').val(),
-              hid: hid
+              Room_ID: $('#roomid').val(),
+              Hostel_Name: $('#hostelname').val(),
+              No_of_inmates: $('#no_of_inmates').val(),
+              No_of_outlets: $('#no_of_outlets').val(),
             }).done(() => {
               window.location.reload();
             })
@@ -251,10 +251,10 @@ $(document).ready(() => {
                       <li class="list-group-item">
                         <div class="row text-center">
                       <div class="col">
-                        ${room.roomno}
+                        ${room.Room_ID}
                       </div>
                       <div class="col">
-                        ${room.floor}
+                        ${room.Hostel_Name}
                       </div> 
                       <div class="col">
                         ${room.vacant}
@@ -300,125 +300,125 @@ $(document).ready(() => {
     })
   })
 
-  $('#addInventory').click(() => {
-    $('#noticeBoard').empty().css('display', 'block').append(`
-          <div class="form-group">
-            <input id="itemName" required type="text" class="form-control input"
-                             placeholder="Item Name">
-          </div>
-          <div class="form-group">
-            <input id="qty" required type="number" class="form-control input"
-                             placeholder="Quantity">
-          </div>
-          <div id="errorAddInventory" class="text-danger text-capitalize">
+  // $('#addInventory').click(() => {
+  //   $('#noticeBoard').empty().css('display', 'block').append(`
+  //         <div class="form-group">
+  //           <input id="itemName" required type="text" class="form-control input"
+  //                            placeholder="Item Name">
+  //         </div>
+  //         <div class="form-group">
+  //           <input id="qty" required type="number" class="form-control input"
+  //                            placeholder="Quantity">
+  //         </div>
+  //         <div id="errorAddInventory" class="text-danger text-capitalize">
             
-          </div>
-          <button id="submitInventoryBtn" class="btn btn-success">Submit</button>
-        `);
+  //         </div>
+  //         <button id="submitInventoryBtn" class="btn btn-success">Submit</button>
+  //       `);
 
-    $('#submitInventoryBtn').click(() => {
-      let hid = +localStorage.getItem('hid')
-      let name = $('#itemName').val();
-      let qty = $('#qty').val()
+    // $('#submitInventoryBtn').click(() => {
+    //   let hid = +localStorage.getItem('hid')
+    //   let name = $('#itemName').val();
+    //   let qty = $('#qty').val()
 
-      console.log(hid)
-      console.log(name)
-      console.log(qty)
-
-
-      if (!qty || qty <= 0) {
-        $('#errorAddInventory').text("Please Enter Valid Quantity(Quantity>0)");
-        return;
-      }
+    //   console.log(hid)
+    //   console.log(name)
+    //   console.log(qty)
 
 
-      $.post("/api/inventory/add", {
-        name,
-        hid,
-        qty
-      }).done(function (hostel) {
-        if (hostel.success) {
-          $('#errorAddInventory').removeClass('text-danger').addClass('text-success').text("Inventory Added");
-        } else {
-          console.log(2)
-          console.log(hostel.error);
-          $('#errorAddInventory').addClass("text-danger").removeClass('text-success').text("Some Error Add Inventory")
-        }
-      }).fail(function (hostel) {
-        console.log(hostel.responseJSON)
-        if (hostel.responseJSON.error.name === 'SequelizeUniqueConstraintError') {
-          $('#errorAddInventory').text(`${hostel.responseJSON.error.errors[0].type}! ${hostel.responseJSON.error.errors[0].message}`)
-        } else {
-          $('#errorAddInventory').addClass("text-danger").removeClass('text-success').text("Some Error Add Hostel2")
-        }
-      });
-    })
-  })
+    //   if (!qty || qty <= 0) {
+    //     $('#errorAddInventory').text("Please Enter Valid Quantity(Quantity>0)");
+    //     return;
+    //   }
 
-  $('#viewInventory').click(() => {
-    $.get('/api/inventory/viewAll')
-      .done((data) => {
-        if (data.success) {
-          let inventory = data.data;
-          console.log(inventory)
-          $('#noticeBoard').empty().css('display', 'block').append(`
-              <div class="row no-gutters">
-                <div class="col">
-                  <ul id="viewAllHostels" class="list-group">
-                    <li class="list-group-item">
-                    <div class="row">
-                      <div class="col">
-                        <b>EMID</b>
-                      </div>
-                      <div class="col">
-                      <b>HOSTEL NAME</b>
-                      </div> 
+
+  //     $.post("/api/inventory/add", {
+  //       name,
+  //       hid,
+  //       qty
+  //     }).done(function (hostel) {
+  //       if (hostel.success) {
+  //         $('#errorAddInventory').removeClass('text-danger').addClass('text-success').text("Inventory Added");
+  //       } else {
+  //         console.log(2)
+  //         console.log(hostel.error);
+  //         $('#errorAddInventory').addClass("text-danger").removeClass('text-success').text("Some Error Add Inventory")
+  //       }
+  //     }).fail(function (hostel) {
+  //       console.log(hostel.responseJSON)
+  //       if (hostel.responseJSON.error.name === 'SequelizeUniqueConstraintError') {
+  //         $('#errorAddInventory').text(`${hostel.responseJSON.error.errors[0].type}! ${hostel.responseJSON.error.errors[0].message}`)
+  //       } else {
+  //         $('#errorAddInventory').addClass("text-danger").removeClass('text-success').text("Some Error Add Hostel2")
+  //       }
+  //     });
+  //   })
+  // })
+
+  // $('#viewInventory').click(() => {
+  //   $.get('/api/inventory/viewAll')
+  //     .done((data) => {
+  //       if (data.success) {
+  //         let inventory = data.data;
+  //         console.log(inventory)
+  //         $('#noticeBoard').empty().css('display', 'block').append(`
+  //             <div class="row no-gutters">
+  //               <div class="col">
+  //                 <ul id="viewAllHostels" class="list-group">
+  //                   <li class="list-group-item">
+  //                   <div class="row">
+  //                     <div class="col">
+  //                       <b>EMID</b>
+  //                     </div>
+  //                     <div class="col">
+  //                     <b>HOSTEL NAME</b>
+  //                     </div> 
                       
-                      <div class="col">
-                      <b>ITEM NAME</b>
-                      </div> 
-                      <div class="col">
-                      <b>QUANTITY</b>
-                      </div> 
+  //                     <div class="col">
+  //                     <b>ITEM NAME</b>
+  //                     </div> 
+  //                     <div class="col">
+  //                     <b>QUANTITY</b>
+  //                     </div> 
                       
                       
-                    </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            `)
-          inventory.forEach((inventory) => {
-            $('#noticeBoard').append(`
-              <li class="list-group-item">
-              <div class="row">
-                      <div class="col">
-                        ${inventory.emid}
-                      </div>
-                      <div class="col">
-                        ${inventory.hname}
-                      </div>
+  //                   </div>
+  //                   </li>
+  //                 </ul>
+  //               </div>
+  //             </div>
+  //           `)
+  //         inventory.forEach((inventory) => {
+  //           $('#noticeBoard').append(`
+  //             <li class="list-group-item">
+  //             <div class="row">
+  //                     <div class="col">
+  //                       ${inventory.emid}
+  //                     </div>
+  //                     <div class="col">
+  //                       ${inventory.hname}
+  //                     </div>
                       
-                      <div class="col">
-                        ${inventory.name}
-                      </div> 
-                      <div class="col">
-                        ${inventory.qty}
-                      </div> 
-                    </div>
-              </li>
+  //                     <div class="col">
+  //                       ${inventory.name}
+  //                     </div> 
+  //                     <div class="col">
+  //                       ${inventory.qty}
+  //                     </div> 
+  //                   </div>
+  //             </li>
                         
-                      `)
-          })
-        } else {
-          console.log("Some error view inventory")
-        }
-      })
-      .fail((err) => {
-        console.log(2)
-        console.log(err)
-      })
-  })
+  //                     `)
+  //         })
+  //       } else {
+  //         console.log("Some error view inventory")
+  //       }
+  //     })
+  //     .fail((err) => {
+  //       console.log(2)
+  //       console.log(err)
+  //     })
+  // })
 
   $('#addFine').click(() => {
     $('#noticeBoard').empty().css('display', 'block').append(`
@@ -595,129 +595,129 @@ $(document).ready(() => {
     })
   })
 
-  $('#addAttendance').click(() => {
-    hid = localStorage.getItem('hid');
-    $.post('/api/attendance/viewByHid', {hid})
-      .done((data) => {
-          if (data.success) {
-            let attendance = data.data;
-            console.log(attendance)
-            $('#noticeBoard').empty().css('display', 'block').append(`
-              <div class="row no-gutters">
-                <div class="col">
-                  <ul id="viewAllHostels" class="list-group">
-                    <li class="list-group-item">
-                    <div class="row">
-                      <div class="col">
-                        <b>Roll Number</b>
-                      </div>
-                      <div class="col">
-                      <b>Room Number</b>
-                      </div>
+  // $('#addAttendance').click(() => {
+  //   hid = localStorage.getItem('hid');
+  //   $.post('/api/attendance/viewByHid', {hid})
+  //     .done((data) => {
+  //         if (data.success) {
+  //           let attendance = data.data;
+  //           console.log(attendance)
+  //           $('#noticeBoard').empty().css('display', 'block').append(`
+  //             <div class="row no-gutters">
+  //               <div class="col">
+  //                 <ul id="viewAllHostels" class="list-group">
+  //                   <li class="list-group-item">
+  //                   <div class="row">
+  //                     <div class="col">
+  //                       <b>Roll Number</b>
+  //                     </div>
+  //                     <div class="col">
+  //                     <b>Room Number</b>
+  //                     </div>
 
-                      <div class="col">
-                      <b>Present</b>
-                      </div>
-                      <div class="col">
-                      <b>Total</b>
-                      </div>
-                      <div class="col">
-                      <b>Mark</b>
-                      </div>
+  //                     <div class="col">
+  //                     <b>Present</b>
+  //                     </div>
+  //                     <div class="col">
+  //                     <b>Total</b>
+  //                     </div>
+  //                     <div class="col">
+  //                     <b>Mark</b>
+  //                     </div>
 
-                    </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            `)
+  //                   </div>
+  //                   </li>
+  //                 </ul>
+  //               </div>
+  //             </div>
+  //           `)
 
-            dat = {}
-            attendance.forEach((attendance, idx) => {
+  //           dat = {}
+  //           attendance.forEach((attendance, idx) => {
 
-              $('#noticeBoard').append(`
-              <li class="list-group-item">
-              <div class="row">
-                      <div class="col">
-                        ${attendance.rno}
-                      </div>
-                      <div class="col">
-                        ${attendance.roomno}
-                      </div>
+  //             $('#noticeBoard').append(`
+  //             <li class="list-group-item">
+  //             <div class="row">
+  //                     <div class="col">
+  //                       ${attendance.rno}
+  //                     </div>
+  //                     <div class="col">
+  //                       ${attendance.roomno}
+  //                     </div>
 
-                      <div class="col">
-                        ${attendance.totalpresent}
-                      </div>
-                      <div class="col">
-                        ${attendance.totaldays}
-                      </div>
-                      <div class="col">
-                        <input id="cb${idx}" value="" type="checkbox">
-                      </div>
-                    </div>
-              </li>
+  //                     <div class="col">
+  //                       ${attendance.totalpresent}
+  //                     </div>
+  //                     <div class="col">
+  //                       ${attendance.totaldays}
+  //                     </div>
+  //                     <div class="col">
+  //                       <input id="cb${idx}" value="" type="checkbox">
+  //                     </div>
+  //                   </div>
+  //             </li>
 
-                      `)
-            })
+  //                     `)
+  //           })
 
-            $('#noticeBoard').append(`<button id="markAttendance" class="btn btn-info">Submit</button>`)
+  //           $('#noticeBoard').append(`<button id="markAttendance" class="btn btn-info">Submit</button>`)
 
-            $('#markAttendance').click(() => {
+  //           $('#markAttendance').click(() => {
 
-              attendance.forEach((attendance, idx) => {
-                rno = attendance.rno
-                if ($('#cb' + idx).is(":checked")) {
-                  $.post("/api/attendance/add", {rno}).done(function (hostel) {
-                    if (hostel.success) {
-                      $('#errorAddFine').removeClass('text-danger').addClass('text-success').text("Fine Added");
-                    } else {
-                      console.log(2)
-                      console.log(hostel.error);
-                      $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Fine")
-                    }
-                  }).fail(function (hostel) {
-                    console.log(hostel.responseJSON)
-                    if (hostel.responseJSON.error.name === 'SequelizeUniqueConstraintError') {
-                      $('#errorAddFine').text(`${hostel.responseJSON.error.errors[0].type}! ${hostel.responseJSON.error.errors[0].message}`)
-                    } else {
-                      $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Hostel2")
-                    }
-                  });
-                }
-                else {
-                  console.log('absent');
-                  $.post("/api/attendance/absent", {rno}).done(function (hostel) {
-                    if (hostel.success) {
-                      $('#errorAddFine').removeClass('text-danger').addClass('text-success').text("Fine Added");
-                    } else {
-                      console.log(2)
-                      console.log(hostel.error);
-                      $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Fine")
-                    }
-                  }).fail(function (hostel) {
-                    console.log(hostel.responseJSON)
-                    if (hostel.responseJSON.error.name === 'SequelizeUniqueConstraintError') {
-                      $('#errorAddFine').text(`${hostel.responseJSON.error.errors[0].type}! ${hostel.responseJSON.error.errors[0].message}`)
-                    } else {
-                      $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Hostel2")
-                    }
-                  });
-                }
-              })
-              $('#noticeBoard').empty();
+  //             attendance.forEach((attendance, idx) => {
+  //               rno = attendance.rno
+  //               if ($('#cb' + idx).is(":checked")) {
+  //                 $.post("/api/attendance/add", {rno}).done(function (hostel) {
+  //                   if (hostel.success) {
+  //                     $('#errorAddFine').removeClass('text-danger').addClass('text-success').text("Fine Added");
+  //                   } else {
+  //                     console.log(2)
+  //                     console.log(hostel.error);
+  //                     $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Fine")
+  //                   }
+  //                 }).fail(function (hostel) {
+  //                   console.log(hostel.responseJSON)
+  //                   if (hostel.responseJSON.error.name === 'SequelizeUniqueConstraintError') {
+  //                     $('#errorAddFine').text(`${hostel.responseJSON.error.errors[0].type}! ${hostel.responseJSON.error.errors[0].message}`)
+  //                   } else {
+  //                     $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Hostel2")
+  //                   }
+  //                 });
+  //               }
+  //               else {
+  //                 console.log('absent');
+  //                 $.post("/api/attendance/absent", {rno}).done(function (hostel) {
+  //                   if (hostel.success) {
+  //                     $('#errorAddFine').removeClass('text-danger').addClass('text-success').text("Fine Added");
+  //                   } else {
+  //                     console.log(2)
+  //                     console.log(hostel.error);
+  //                     $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Fine")
+  //                   }
+  //                 }).fail(function (hostel) {
+  //                   console.log(hostel.responseJSON)
+  //                   if (hostel.responseJSON.error.name === 'SequelizeUniqueConstraintError') {
+  //                     $('#errorAddFine').text(`${hostel.responseJSON.error.errors[0].type}! ${hostel.responseJSON.error.errors[0].message}`)
+  //                   } else {
+  //                     $('#errorAddFine').addClass("text-danger").removeClass('text-success').text("Some Error Add Hostel2")
+  //                   }
+  //                 });
+  //               }
+  //             })
+  //             $('#noticeBoard').empty();
 
-            })
-          }
-          else {
-            console.log("Some error view inventory")
-          }
-        }
-      )
-      .fail((err) => {
-        console.log(2)
-        console.log(err)
-      })
-  })
+  //           })
+  //         }
+  //         else {
+  //           console.log("Some error view inventory")
+  //         }
+  //       }
+  //     )
+  //     .fail((err) => {
+  //       console.log(2)
+  //       console.log(err)
+  //     })
+  // })
 
 })
 
